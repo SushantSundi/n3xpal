@@ -30,7 +30,7 @@ final class RemoteView extends FrameLayout {
     private final GestureDetector gestureDetector;
     private Runnable onDoubleTap;
     RemoteView(Context c,Consumer<String> log){
-        super(c);this.log=log;setBackgroundColor(Color.BLACK);
+        super(c);this.log=log;setBackgroundColor(0xff0a0e1a);
         texture=new TextureView(c);texture.setOpaque(false);addView(texture,new LayoutParams(-1,-1));
         cursor=new View(c){protected void onDraw(Canvas canvas){if(!mouse)return;RectF r=image();float x=r.left+cx*r.width(),y=r.top+cy*r.height();
             Path p=new Path();p.moveTo(x,y);p.lineTo(x+dp(5),y+dp(20));p.lineTo(x+dp(9),y+dp(13));p.lineTo(x+dp(17),y+dp(12));p.close();

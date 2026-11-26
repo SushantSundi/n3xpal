@@ -42,11 +42,25 @@ public final class MainActivity extends Activity implements Session.Listener {
     private volatile boolean pairing;
     private String lastHost;private int lastPort;
     private Options lastOptions;
+    // ── n3xPAL dark-navy theme ────────────────────────────────────────────────
+    private static final int C_BG      =0xff0a0e1a; // deep navy background
+    private static final int C_CARD    =0xff111827; // card surface
+    private static final int C_INPUT   =0xff0f172a; // input field background
+    private static final int C_BTN     =0xff1e3a5f; // button background
+    private static final int C_BTN_SEL =0xff1d3461; // selected button background
+    private static final int C_PANEL   =0xff0d1526; // dialog panel background
+    private static final int C_ACCENT  =0xff3b82f6; // electric-blue accent
+    private static final int C_RIPPLE  =0x333b82f6; // touch ripple
+    private static final int C_BORDER  =0xff1e3a5f; // idle border
+    private static final int C_BD_SEL  =0xff3b82f6; // selected border
+    private static final int C_TX_HEAD =0xffe2e8f0; // heading text
+    private static final int C_TX_NOTE =0xff94a3b8; // note / secondary text
+    // ─────────────────────────────────────────────────────────────────────────
     private final Runnable flushConsole=new Runnable(){public void run(){if(destroyed||!connectionGate.canStart())return;if(dirty&&console!=null){String text;synchronized(logLock){text=visibleLog.toString();dirty=false;}console.setText(ConsoleText.render(text));}ui.postDelayed(this,250);}};
     @Override public void onCreate(Bundle state){super.onCreate(state);prefs=getSharedPreferences("settings",MODE_PRIVATE);I18n.initialize(this);logFile=new File(getFilesDir(),"console.log");
-        getWindow().setNavigationBarColor(Color.BLACK);getWindow().setStatusBarColor(Color.BLACK);
+        getWindow().setNavigationBarColor(C_BG);getWindow().setStatusBarColor(C_BG);
         if(Build.VERSION.SDK_INT>=30)getWindow().setDecorFitsSystemWindows(false);
-        root=new FrameLayout(this);root.setBackgroundColor(Color.BLACK);
+        root=new FrameLayout(this);root.setBackgroundColor(C_BG);
         root.setOnApplyWindowInsetsListener((v,insets)->{if(Build.VERSION.SDK_INT>=30){android.graphics.Insets sys=insets.getInsets(WindowInsets.Type.systemBars()|WindowInsets.Type.displayCutout()|WindowInsets.Type.ime());root.setPadding(sys.left,sys.top,sys.right,sys.bottom);}else root.setPadding(insets.getSystemWindowInsetLeft(),insets.getSystemWindowInsetTop(),insets.getSystemWindowInsetRight(),insets.getSystemWindowInsetBottom());return insets;});
         setContentView(root);buildHome();io.execute(()->{try{if(logFile.exists()){byte[] bytes=read(logFile);String text=new String(bytes,StandardCharsets.UTF_8);synchronized(logLock){visibleLog.insert(0,text);trimLog();dirty=true;}}}catch(Exception ignored){}});log(I18n.t(R.string.text_069)+Session.VERSION);setupUsb();}
     private static final String USB_PERMISSION="com.sushantsundi.n3xPAL.USB_PERMISSION";
@@ -129,12 +143,12 @@ public final class MainActivity extends Activity implements Session.Listener {
     private LinearLayout row(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.HORIZONTAL);return l;}
     private GradientDrawable shape(int color,int radius){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(dp(radius));return d;}
     private TextView label(String text,int size,int color){TextView t=new TextView(this);t.setText(text);t.setTextSize(size);t.setTextColor(color);t.setPadding(0,dp(5),0,dp(5));return t;}
-    private TextView title(String text){return label(text,21,Color.rgb(232,234,239));}
-    private TextView note(String text){return label(text,13,Color.rgb(151,157,168));}
-    private Button button(String text,Runnable action){Button b=new Button(this);b.setText(text);b.setAllCaps(false);b.setTextSize(14);b.setTextColor(Color.rgb(218,227,238));b.setBackground(new android.graphics.drawable.RippleDrawable(android.content.res.ColorStateList.valueOf(0x335e809e),shape(Color.rgb(25,29,36),16),null));b.setMinHeight(dp(44));b.setPadding(dp(12),dp(6),dp(12),dp(6));b.setOnClickListener(v->action.run());return b;}
+    private TextView title(String text){return label(text,21,C_TX_HEAD);}
+    private TextView note(String text){return label(text,13,C_TX_NOTE);}
+    private Button button(String text,Runnable action){Button b=new Button(this);b.setText(text);b.setAllCaps(false);b.setTextSize(14);b.setTextColor(C_TX_HEAD);b.setBackground(new android.graphics.drawable.RippleDrawable(android.content.res.ColorStateList.valueOf(C_RIPPLE),shape(C_BTN,16),null));b.setMinHeight(dp(44));b.setPadding(dp(12),dp(6),dp(12),dp(6));b.setOnClickListener(v->action.run());return b;}
     private void addButton(LinearLayout l,String text,Runnable action){Button b=button(text,action);LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,dp(48));p.topMargin=dp(8);l.addView(b,p);}
-    private LinearLayout card(LinearLayout parent){LinearLayout c=column();c.setPadding(dp(16),dp(12),dp(16),dp(16));c.setBackground(shape(Color.rgb(12,14,18),20));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.bottomMargin=dp(12);parent.addView(c,p);return c;}
-    private EditText input(LinearLayout parent,String caption,String value,String hint,boolean numeric){parent.addView(note(caption));EditText e=new EditText(this);e.setSingleLine(true);e.setTextColor(Color.WHITE);e.setTextSize(16);e.setHintTextColor(Color.GRAY);e.setHint(hint);e.setText(value);e.setPadding(dp(10),dp(8),dp(10),dp(8));e.setBackground(shape(Color.rgb(22,24,30),10));if(numeric)e.setInputType(InputType.TYPE_CLASS_NUMBER);parent.addView(e,new LinearLayout.LayoutParams(-1,dp(46)));return e;}
+    private LinearLayout card(LinearLayout parent){LinearLayout c=column();c.setPadding(dp(16),dp(12),dp(16),dp(16));c.setBackground(shape(C_CARD,20));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.bottomMargin=dp(12);parent.addView(c,p);return c;}
+    private EditText input(LinearLayout parent,String caption,String value,String hint,boolean numeric){parent.addView(note(caption));EditText e=new EditText(this);e.setSingleLine(true);e.setTextColor(C_TX_HEAD);e.setTextSize(16);e.setHintTextColor(0xff4b5563);e.setHint(hint);e.setText(value);e.setPadding(dp(10),dp(8),dp(10),dp(8));e.setBackground(shape(C_INPUT,10));if(numeric)e.setInputType(InputType.TYPE_CLASS_NUMBER);parent.addView(e,new LinearLayout.LayoutParams(-1,dp(46)));return e;}
     private ScrollView scroll(LinearLayout content){ScrollView s=new ScrollView(this);s.setFillViewport(true);s.addView(content,new ScrollView.LayoutParams(-1,-2));return s;}
     private void buildHome(){home=column();home.setPadding(dp(14),dp(8),dp(14),0);root.addView(home,new FrameLayout.LayoutParams(-1,-1));
         TextView heading=title("n3xPAL");heading.setTypeface(null,1);home.addView(heading);home.addView(note(I18n.t(R.string.text_081)));
@@ -148,7 +162,7 @@ public final class MainActivity extends Activity implements Session.Listener {
         LinearLayout c=card(content);c.addView(title(I18n.t(R.string.text_086)));
         c.addView(note(I18n.t(R.string.text_087)));
         usbStatus=note(I18n.t(R.string.text_088));c.addView(usbStatus);
-        Switch auto=new Switch(this);auto.setText(I18n.t(R.string.text_089));auto.setTextColor(0xffbfc9d6);auto.setChecked(prefs.getBoolean("usbAuto",true));c.addView(auto);
+        Switch auto=new Switch(this);auto.setText(I18n.t(R.string.text_089));auto.setTextColor(C_TX_NOTE);auto.setChecked(prefs.getBoolean("usbAuto",true));c.addView(auto);
         auto.setOnCheckedChangeListener((v,enabled)->{prefs.edit().putBoolean("usbAuto",enabled).apply();if(enabled){connectionGate.allowAutoUsb();autoUsb();}});
         addButton(c,I18n.t(R.string.text_090),()->{connectionGate.allowAutoUsb();scanUsb(true);});addButton(c,I18n.t(R.string.text_091),()->scanUsb(false));
         c.addView(note(I18n.t(R.string.text_092)));
@@ -172,10 +186,10 @@ public final class MainActivity extends Activity implements Session.Listener {
         addButton(presets,I18n.t(R.string.text_113),()->preset("1280","60","8000000"));
         addButton(presets,I18n.t(R.string.text_114),()->preset("800","30","2000000"));
         Options o=new Options(prefs);fields.clear();
-        for(String[] f:Options.fields()){LinearLayout c=card(content);c.addView(label(f[1],16,Color.WHITE));String hint=f[3],val=o.get(f[0]);View v;
-            if(hint.equals("bool")){Switch sw=new Switch(this);sw.setText(I18n.t(R.string.text_115));sw.setTextColor(0xffbfc9d6);sw.setChecked(Boolean.parseBoolean(val));c.addView(sw);sw.setOnCheckedChangeListener((b,checked)->prefs.edit().putString(f[0],Boolean.toString(checked)).apply());v=sw;}
+        for(String[] f:Options.fields()){LinearLayout c=card(content);c.addView(label(f[1],16,C_TX_HEAD));String hint=f[3],val=o.get(f[0]);View v;
+            if(hint.equals("bool")){Switch sw=new Switch(this);sw.setText(I18n.t(R.string.text_115));sw.setTextColor(C_TX_NOTE);sw.setChecked(Boolean.parseBoolean(val));c.addView(sw);sw.setOnCheckedChangeListener((b,checked)->prefs.edit().putString(f[0],Boolean.toString(checked)).apply());v=sw;}
             else if(hint.contains("|")){Spinner sp=new Spinner(this);String[] choices=hint.split("\\|",-1);String[] labels=new String[choices.length];for(int i=0;i<choices.length;i++)labels[i]=I18n.optionLabel(choices[i]);sp.setTag(choices);ArrayAdapter<String>a=new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,labels);sp.setAdapter(a);int selected=Arrays.asList(choices).indexOf(val);sp.setSelection(Math.max(0,selected));c.addView(sp,new LinearLayout.LayoutParams(-1,dp(46)));v=sp;}
-            else{EditText e=new EditText(this);e.setText(val);e.setTextColor(Color.WHITE);e.setTextSize(15);e.setSingleLine(!f[0].equals("extra"));if(f[0].equals("extra")){e.setMinLines(4);e.setGravity(Gravity.TOP);}if(SettingsChoices.numeric(f[0]))e.setInputType(InputType.TYPE_CLASS_NUMBER|((f[0].equals("max_fps")||f[0].equals("angle")||f[0].equals("mouseSpeed"))?InputType.TYPE_NUMBER_FLAG_DECIMAL:0));
+            else{EditText e=new EditText(this);e.setText(val);e.setTextColor(C_TX_HEAD);e.setTextSize(15);e.setSingleLine(!f[0].equals("extra"));if(f[0].equals("extra")){e.setMinLines(4);e.setGravity(Gravity.TOP);}if(SettingsChoices.numeric(f[0]))e.setInputType(InputType.TYPE_CLASS_NUMBER|((f[0].equals("max_fps")||f[0].equals("angle")||f[0].equals("mouseSpeed"))?InputType.TYPE_NUMBER_FLAG_DECIMAL:0));
                 LinearLayout editRow=row();editRow.setGravity(Gravity.TOP);editRow.addView(e,new LinearLayout.LayoutParams(0,-2,1));
                 Button choose=button("▾",()->chooseSetting(f[0],e));choose.setTextSize(22);choose.setContentDescription(I18n.t(R.string.text_116)+f[1]);choose.setMinWidth(0);choose.setMinimumWidth(0);LinearLayout.LayoutParams choiceLayout=new LinearLayout.LayoutParams(dp(48),dp(46));choiceLayout.setMargins(dp(8),0,0,0);editRow.addView(choose,choiceLayout);c.addView(editRow);c.addView(note(hint));v=e;}
             fields.put(f[0],v);
@@ -207,7 +221,7 @@ public final class MainActivity extends Activity implements Session.Listener {
     private void helpPage(){body.addView(new HelpView(this),new LinearLayout.LayoutParams(-1,-1));}
     private void consolePage(){LinearLayout toolbar=row();toolbar.addView(button(I18n.t(R.string.text_128),()->copyConsole()),new LinearLayout.LayoutParams(0,dp(44),1));toolbar.addView(button(I18n.t(R.string.text_129),()->clearConsole()),new LinearLayout.LayoutParams(0,dp(44),1));toolbar.addView(button(I18n.t(R.string.text_130),()->exportLog()),new LinearLayout.LayoutParams(0,dp(44),1));body.addView(toolbar);
         body.addView(note(I18n.t(R.string.text_131)));
-        console=label("",13,0xffd8dfe8);console.setLineSpacing(dp(3),1);console.setTypeface(android.graphics.Typeface.MONOSPACE);console.setTextIsSelectable(true);showConsoleLog(console);ScrollView scroll=new ScrollView(this);scroll.addView(console);body.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
+        console=label("",13,C_TX_HEAD);console.setLineSpacing(dp(3),1);console.setTypeface(android.graphics.Typeface.MONOSPACE);console.setTextIsSelectable(true);showConsoleLog(console);ScrollView scroll=new ScrollView(this);scroll.addView(console);body.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         command=new EditText(this);command.setTextColor(Color.WHITE);command.setTextSize(14);command.setHint(I18n.t(R.string.text_132));command.setSingleLine(true);body.addView(command);
         addButton(body,I18n.t(R.string.text_133),()->{String cmd=command.getText().toString();if(!cmd.trim().isEmpty()&&session!=null)session.shell(cmd);else toast(I18n.t(R.string.text_134));});
     }
@@ -218,7 +232,7 @@ public final class MainActivity extends Activity implements Session.Listener {
         pairing=true;status.setText(I18n.t(R.string.text_140));io.execute(()->{try{AdbIdentity a=new AdbIdentity(this);a.pair(h,p,code);a.disconnect();log(I18n.t(R.string.text_141)+h+I18n.t(R.string.text_142));ui.post(()->{status.setText(I18n.t(R.string.text_143));pairCode.setText("");});}catch(Exception e){log(I18n.t(R.string.text_144)+e);ui.post(()->status.setText(I18n.t(R.string.text_145)));}finally{pairing=false;}});
     }
     private void openPlayer(){if(destroyed||!connectionGate.canStart()||player!=null)return;getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);home.setVisibility(View.GONE);
-        player=new FrameLayout(this);player.setMotionEventSplittingEnabled(true);player.setBackgroundColor(Color.BLACK);root.addView(player,new FrameLayout.LayoutParams(-1,-1));remote=new RemoteView(this,this::log);remote.speed=Float.parseFloat(lastOptions.get("mouseSpeed"));player.addView(remote,new FrameLayout.LayoutParams(-1,-1));remote.requestFocus();
+        player=new FrameLayout(this);player.setMotionEventSplittingEnabled(true);player.setBackgroundColor(C_BG);root.addView(player,new FrameLayout.LayoutParams(-1,-1));remote=new RemoteView(this,this::log);remote.speed=Float.parseFloat(lastOptions.get("mouseSpeed"));player.addView(remote,new FrameLayout.LayoutParams(-1,-1));remote.requestFocus();
         int savedDm=prefs.getInt("displayMode",0);remote.setDisplayMode(LocalViewport.Mode.values()[Math.max(0,Math.min(2,savedDm))]);
         remote.setOnDoubleTap(this::toggleFullscreen);sessionFullscreen=true;
         createMouseButtons();
@@ -260,7 +274,7 @@ public final class MainActivity extends Activity implements Session.Listener {
         SessionPanel(){
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);dialog.setCanceledOnTouchOutside(false);
             LinearLayout panel=column();panel.setPadding(dp(16),dp(12),dp(16),dp(14));
-            GradientDrawable bg=shape(0xff101318,24);bg.setStroke(dp(1),0xff2b313c);panel.setBackground(bg);
+            GradientDrawable bg=shape(C_PANEL,24);bg.setStroke(dp(1),C_BORDER);panel.setBackground(bg);
             LinearLayout header=row(),titles=column();titles.addView(heading);titles.addView(subtitle);header.addView(titles,new LinearLayout.LayoutParams(0,-2,1));
             Button close=button("×",dialog::dismiss);close.setContentDescription(I18n.t(R.string.text_149));close.setTextSize(24);header.addView(close,new LinearLayout.LayoutParams(dp(46),dp(46)));panel.addView(header);
             ScrollView scroll=scroll(content);scroll.setClipToPadding(false);panel.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
@@ -281,13 +295,13 @@ public final class MainActivity extends Activity implements Session.Listener {
     private void showMainPanel(SessionPanel p){
         p.content.removeAllViews();p.heading(I18n.t(R.string.text_152));p.content.addView(note(I18n.t(R.string.text_153)));
         LinearLayout modes=row();Button[] buttons=new Button[3];String[] names={I18n.t(R.string.text_154),I18n.t(R.string.text_155),I18n.t(R.string.text_156)};
-        Runnable paint=()->{for(int i=0;i<buttons.length;i++){boolean selected=remote!=null&&remote.mode()==i;GradientDrawable b=shape(selected?0xff293b4b:0xff1b2029,16);b.setStroke(dp(1),selected?0xff9bbbd5:0xff303744);buttons[i].setBackground(b);}p.heading(I18n.t(R.string.text_152));};
+        Runnable paint=()->{for(int i=0;i<buttons.length;i++){boolean selected=remote!=null&&remote.mode()==i;GradientDrawable b=shape(selected?C_BTN_SEL:C_BTN,16);b.setStroke(dp(1),selected?C_BD_SEL:C_BORDER);buttons[i].setBackground(b);}p.heading(I18n.t(R.string.text_152));};
         for(int i=0;i<3;i++){final int mode=i;Button b=button(names[i],()->{setInteractionMode(mode);showMainPanel(p);});b.setTextSize(12);b.setPadding(dp(5),dp(6),dp(5),dp(6));b.setMaxLines(3);buttons[i]=b;LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(90),1);lp.setMargins(dp(3),dp(6),dp(3),dp(10));modes.addView(b,lp);}p.content.addView(modes);paint.run();
         p.content.addView(note(I18n.t(R.string.text_157)));
         groupLabel(p.content,I18n.t(R.string.text_305));
         p.content.addView(note(I18n.t(R.string.text_309)));
         LinearLayout displayModes=row();Button[] dmButtons=new Button[3];String[] dmNames={I18n.t(R.string.text_306),I18n.t(R.string.text_307),I18n.t(R.string.text_308)};
-        Runnable paintDm=()->{for(int i=0;i<dmButtons.length;i++){boolean sel=remote!=null&&remote.getDisplayMode().ordinal()==i;GradientDrawable bg=shape(sel?0xff293b4b:0xff1b2029,16);bg.setStroke(dp(1),sel?0xff9bbbd5:0xff303744);dmButtons[i].setBackground(bg);}};
+        Runnable paintDm=()->{for(int i=0;i<dmButtons.length;i++){boolean sel=remote!=null&&remote.getDisplayMode().ordinal()==i;GradientDrawable bg=shape(sel?C_BTN_SEL:C_BTN,16);bg.setStroke(dp(1),sel?C_BD_SEL:C_BORDER);dmButtons[i].setBackground(bg);}};
         for(int i=0;i<3;i++){final int dm=i;Button b=button(dmNames[i],()->{if(remote!=null)remote.setDisplayMode(LocalViewport.Mode.values()[dm]);prefs.edit().putInt("displayMode",dm).apply();paintDm.run();});b.setTextSize(12);b.setPadding(dp(5),dp(6),dp(5),dp(6));b.setMaxLines(2);dmButtons[i]=b;LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(62),1);lp.setMargins(dp(3),dp(4),dp(3),dp(4));displayModes.addView(b,lp);}
         p.content.addView(displayModes);paintDm.run();
         groupLabel(p.content,I18n.t(R.string.text_158));
@@ -330,8 +344,8 @@ public final class MainActivity extends Activity implements Session.Listener {
         FrameLayout.LayoutParams bar=new FrameLayout.LayoutParams(-1,dp(68),Gravity.BOTTOM);bar.setMargins(0,0,0,dp(12));player.addView(mouseButtonBar,bar);
         String[] labels={I18n.t(R.string.text_195),I18n.t(R.string.text_196)};int[] codes={MouseButtons.LEFT,MouseButtons.RIGHT};
         for(int i=0;i<2;i++){final int code=codes[i];Button b=button(labels[i],()->{if(remote!=null)remote.clickMouseButton(code);});b.setContentDescription(i==0?I18n.t(R.string.text_197):I18n.t(R.string.text_198));b.setFocusable(false);b.setTextSize(13);b.setPadding(dp(6),0,dp(6),0);b.setMinimumWidth(0);b.setMinWidth(0);b.setTextColor(Color.WHITE);b.setShadowLayer(dp(2),0,dp(1),Color.BLACK);b.setElevation(0);b.setStateListAnimator(null);b.setBackgroundTintList(null);
-            GradientDrawable normal=shape(Color.TRANSPARENT,15);normal.setStroke(dp(1),0xffe4edf5);
-            GradientDrawable pressed=shape(Color.TRANSPARENT,15);pressed.setStroke(dp(2),0xff80d5ff);
+            GradientDrawable normal=shape(Color.TRANSPARENT,15);normal.setStroke(dp(1),C_ACCENT);
+            GradientDrawable pressed=shape(Color.TRANSPARENT,15);pressed.setStroke(dp(2),C_TX_HEAD);
             android.graphics.drawable.StateListDrawable bg=new android.graphics.drawable.StateListDrawable();bg.addState(new int[]{android.R.attr.state_pressed},pressed);bg.addState(new int[]{},normal);b.setBackground(bg);
             b.setOnTouchListener((v,e)->{if(remote==null)return false;int action=e.getActionMasked();if(action==MotionEvent.ACTION_DOWN){v.setPressed(true);remote.mouseButton(code,true);return true;}if(action==MotionEvent.ACTION_UP||action==MotionEvent.ACTION_CANCEL){v.setPressed(false);remote.mouseButton(code,false);return true;}return true;});
             LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-1,1);lp.setMargins(dp(4),0,dp(4),0);mouseButtonBar.addView(b,lp);
@@ -339,10 +353,10 @@ public final class MainActivity extends Activity implements Session.Listener {
         setInteractionMode(prefs.getInt("interactionMode",0));
     }
     private void sessionConsole(){
-        if(activeConsole!=null&&activeConsole.isShowing())return;Dialog dialog=new Dialog(this);activeConsole=dialog;LinearLayout layout=column();layout.setPadding(dp(14),dp(12),dp(14),dp(12));layout.setBackgroundColor(Color.BLACK);
+        if(activeConsole!=null&&activeConsole.isShowing())return;Dialog dialog=new Dialog(this);activeConsole=dialog;LinearLayout layout=column();layout.setPadding(dp(14),dp(12),dp(14),dp(12));layout.setBackgroundColor(C_PANEL);
         layout.addView(title(I18n.t(R.string.text_199)));LinearLayout tools=row();
         tools.addView(button(I18n.t(R.string.text_128),this::copyConsole),new LinearLayout.LayoutParams(0,dp(44),1));tools.addView(button(I18n.t(R.string.text_129),this::clearConsole),new LinearLayout.LayoutParams(0,dp(44),1));tools.addView(button(I18n.t(R.string.text_130),this::exportLog),new LinearLayout.LayoutParams(0,dp(44),1));layout.addView(tools);
-        TextView previous=console;TextView live=label("",13,0xffd8dfe8);live.setLineSpacing(dp(3),1);live.setTypeface(android.graphics.Typeface.MONOSPACE);live.setTextIsSelectable(true);showConsoleLog(live);console=live;
+        TextView previous=console;TextView live=label("",13,C_TX_HEAD);live.setLineSpacing(dp(3),1);live.setTypeface(android.graphics.Typeface.MONOSPACE);live.setTextIsSelectable(true);showConsoleLog(live);console=live;
         ScrollView scroll=new ScrollView(this);scroll.addView(live);layout.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         EditText cmd=new EditText(this);cmd.setTextColor(Color.WHITE);cmd.setSingleLine(true);cmd.setHint(I18n.t(R.string.text_200));layout.addView(cmd);
         addButton(layout,I18n.t(R.string.text_201),()->{if(session!=null&&!cmd.getText().toString().trim().isEmpty())session.shell(cmd.getText().toString());});
