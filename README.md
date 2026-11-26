@@ -1,106 +1,85 @@
-## **[DOWNLOAD](https://github.com/sw3gmach1n3/Scrcpy_for_Android/releases/tag/V1)**
-# Scrcpy for Android
+# n3xPAL
 
-View and control one Android phone from another. Connect them with a USB data cable, open the app, and use the second phone through direct touch or a mouse-style touchpad. Wireless ADB is available too.
+**Android-to-Android screen mirroring client** — control and mirror one Android device from another over USB OTG or Wi-Fi.
 
-A black interface, adjustable streaming quality, transparent mouse buttons, and the tools you need while connected — all in one Android app.
+Built and maintained by [SushantSundi](https://github.com/SushantSundi).  
+Package ID: `com.sushantsundi.n3xPAL`
 
-<p align="center">
-  <img src="screenshots/app-icon.png" width="104" alt="Scrcpy for Android icon">
-</p>
-
-<p align="center">
-  <img src="screenshots/connection.jpg" width="280" alt="USB connection screen">
-  <img src="screenshots/mouse-controls.jpg" width="280" alt="Remote control menu with transparent mouse buttons">
-</p>
+---
 
 ## Features
 
-- Android-to-Android screen mirroring and remote control
-- Direct USB connection through USB host/OTG — no PC or wireless pairing needed
-- Optional network ADB and wireless pairing
-- Direct touch with multitouch support
-- Gesture touchpad and a separate touchpad mode with Left/Right mouse buttons
-- Transparent mouse buttons over the video, with held-button dragging
-- Local pinch zoom from **1× to 6×** and two-finger panning — enlarge the mirrored image without zooming the content on the other phone
-- Two-finger scrolling on the remote phone when viewing at 1×
-- Ready-made quality profiles, dropdown presets, and manual settings for resolution, FPS, bit rate, codecs, and more
-- Fullscreen control menu with large buttons that stays open until you close it
-- Android navigation, volume, screen power, notification panel, and quick settings controls
-- Clipboard transfer in both directions
-- PNG screenshots and H.264/AAC MP4 recording
-- Built-in Help with categories, search, explanations, and copyable command examples
-- Colored console with timestamps, log levels, source labels, Copy, Clear, and Export
-- Shell commands on the connected phone
-- English and Romanian interfaces, selectable in Settings
-- Optional automatic USB connection while the app is in the foreground
-- Existing sessions stay connected when you switch to another app
-
-## Usage
-
-Install the APK on the phone you want to use as the **controller (A)**. The other phone is the **controlled device (B)**.
-
-1. Enable **Developer options → USB debugging** on B.
-2. Connect the phones with a USB data cable. A needs the **USB host/OTG** role.
-3. Open Scrcpy on A and allow USB access when prompted.
-4. Accept the **USB debugging authorization** prompt on B.
-5. Tap **Connect USB**, or enable automatic connection while the app is open.
-
-The app only needs to be installed on **A**. It starts the bundled scrcpy server on **B** through ADB.
-
-Once connected, choose direct touch or a touchpad mode from the fullscreen menu. Use **Actions and tools** for navigation, clipboard, capture, and other session controls.
-
-## Quality profiles
-
-| Profile | Maximum dimension | FPS limit | Video bit rate |
-| --- | ---: | ---: | ---: |
-| USB quality | 1920 px | 60 | 24 Mbps |
-| Balanced | 1280 px | 60 | 8 Mbps |
-| Low bandwidth | 800 px | 30 | 2 Mbps |
-
-All three profiles use H.264. You can also choose individual values from dropdowns or enter your own. The maximum dimension limits the longer side of the video; the actual output depends on the connected device. Changes apply to the next connection.
-
-## Screenshots
-
-| Connection | Settings |
-| --- | --- |
-| <img src="screenshots/connection.jpg" width="300" alt="Direct USB connection and optional wireless mode"> | <img src="screenshots/settings.jpg" width="300" alt="Quality profiles, resolution, bit rate, and FPS settings"> |
-| **Mouse controls** | **Direct touch** |
-| <img src="screenshots/mouse-controls.jpg" width="300" alt="Touchpad mode, zoom controls, and transparent Left/Right buttons"> | <img src="screenshots/direct-touch.jpg" width="300" alt="Remote control menu with direct multitouch selected"> |
-| **Help** | **Console** |
-| <img src="screenshots/help.jpg" width="300" alt="Searchable Help organized into eight categories"> | <img src="screenshots/console.jpg" width="300" alt="Colored console entries with timestamps, levels, and source labels"> |
+- **USB OTG & Wireless ADB** — connect via cable or over the same network
+- **Three display scaling modes** — Fit (letterbox), Fill (crop-to-fill), Stretch (ignore aspect ratio)
+- **Double-tap fullscreen toggle** — hide/show system bars instantly
+- **Pinch-to-zoom** (1x-6x) with two-finger pan — purely local, no effect on the remote device
+- **Three interaction modes** — Direct touch, Gesture touchpad, Touchpad with mouse buttons
+- **Audio streaming** — AAC, Opus, FLAC or raw PCM from the remote device
+- **MP4 recording** — record the mirrored session locally
+- **Clipboard sync** — bi-directional clipboard between both devices
+- **Remote shell** — run ADB shell commands from within the app
+- **Persistent settings** — display mode, interaction mode and all options saved across sessions
 
 ## Requirements
 
-- **Controller phone:** Android 8.0 or later, with USB host/OTG support for a direct USB connection
-- **Controlled phone:** USB debugging enabled and ADB authorization accepted
-- A USB **data** cable and an OTG adapter if needed
-- Video, audio, and codec support depend on the devices and Android versions involved
+| Device | Role | Requirement |
+|---|---|---|
+| Controller (e.g. tablet) | Runs n3xPAL | Android 8.0+ (API 26), USB OTG host support |
+| Target (e.g. phone) | Mirrored device | USB debugging enabled, accept ADB authorization |
 
-For wireless setup, open **Help → Connection** in the app.
+## Build
 
-## Notes
+```bash
+# Prerequisites: JDK 21, Android SDK platform 35 + build-tools 35
+export JAVA_HOME=/path/to/jdk21
 
-- Connecting a USB cable does **not** launch the app. New automatic connections and retries only start while it is in the foreground. An already active session is kept when you switch apps.
-- Pinch zoom affects the mirrored view on A. Switching back to direct touch resets it to 1×.
-- Recordings use H.264 video and AAC audio. A video configuration change, such as rotation, finalizes the current recording.
-- This is an independent Android client using the official **scrcpy 3.3.4** server. Some desktop-only scrcpy features are outside its scope. The desktop reference in Help documents the PC client.
+git clone https://github.com/SushantSundi/n3xpal.git
+cd n3xpal
 
-## Build from source
+# Create local.properties with your SDK path
+echo "sdk.dir=/path/to/android-sdk" > local.properties
 
-Open the project in Android Studio, install **SDK Platform 35**, and select **JDK 17 or 21** as the Gradle JVM. The project uses Gradle 8.9 and Android Gradle Plugin 8.7.3.
-
-On Windows, run from the project folder:
-
-```powershell
-.\gradlew.bat assembleDebug -Pandroid.injected.testOnly=false
+./gradlew assembleDebug
+# APK: app/build/outputs/apk/debug/app-debug.apk
 ```
 
-APK output: `app/build/outputs/apk/debug/app-debug.apk`
+## Install
+
+```bash
+adb install app/build/outputs/apk/debug/app-debug.apk
+```
+
+## Usage
+
+1. Connect the target phone to the controller tablet with a USB-C OTG cable
+2. Open n3xPAL on the tablet — it auto-detects the phone and requests ADB authorization
+3. Accept **"Allow USB debugging"** on the phone (the tablet appears as **n3xPAL Tablet**)
+4. The phone screen appears on the tablet — use the **•••** button to access display and control settings
+
+**Display modes** (accessible from the ••• menu):
+
+| Mode | Behavior |
+|---|---|
+| Fit | Preserves phone aspect ratio with black bars |
+| Fill | Crops edges to fill the tablet screen |
+| Stretch | Fills screen, ignores aspect ratio |
+
+**Double-tap** anywhere on the mirrored image to toggle system bars fullscreen.
+
+## Wireless connection
+
+1. Ensure both devices are on the same Wi-Fi network
+2. Enable **Wireless debugging** on the phone (Developer options)
+3. Enter the phone's IP and port in the Connection tab, tap Connect
 
 ## Credits
-Made by **[sw3gmach1n3](https://github.com/sw3gmach1n3)**.
 
-Built with [scrcpy](https://github.com/Genymobile/scrcpy/tree/v3.3.4), [libadb-android](https://github.com/MuntashirAkon/libadb-android), and [Conscrypt](https://github.com/google/conscrypt).
+- **scrcpy server** `v3.3.4` — [Genymobile/scrcpy](https://github.com/Genymobile/scrcpy) (Apache-2.0, unmodified binary)
+- **Android client base** — [sw3gmach1n3/Scrcpy_for_Android](https://github.com/sw3gmach1n3/Scrcpy_for_Android)
+- **libadb-android** `3.1.1` — [MuntashirAkon/libadb-android](https://github.com/MuntashirAkon/libadb-android) (Apache-2.0)
+- **Conscrypt** `2.5.3` — [google/conscrypt](https://github.com/google/conscrypt) (Apache-2.0)
 
-See [third-party notices](app/src/main/assets/THIRD-PARTY-NOTICES.txt) for bundled component and license information.
+## License
+
+The n3xPAL client source code is released under the Apache License 2.0.  
+See `app/src/main/assets/Apache-2.0.txt` and `app/src/main/assets/THIRD-PARTY-NOTICES.txt` for full details.

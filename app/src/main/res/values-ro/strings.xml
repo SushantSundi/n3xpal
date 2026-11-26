@@ -68,7 +68,7 @@
     <string name="text_066" formatted="false">"Automat / implicit"</string>
     <string name="text_067" formatted="false">"Cheie ADB invalida"</string>
     <string name="text_068" formatted="false">"Certificat ADB invalid"</string>
-    <string name="text_069" formatted="false">"Scrcpy • USB direct / wireless • server "</string>
+    <string name="text_069" formatted="false">"n3xPAL • USB direct / wireless • server "</string>
     <string name="text_070" formatted="false">"Permisiunea USB pe A a fost refuzată sau cablul a fost scos."</string>
     <string name="text_071" formatted="false">"Permisiune USB neacordată. Apasă Conectează USB pentru a reîncerca."</string>
     <string name="text_072" formatted="false">"Cablul USB a fost deconectat. Reconectează-l pentru detectare automată."</string>

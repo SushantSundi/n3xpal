@@ -68,7 +68,7 @@
     <string name="text_066" formatted="false">"Automatic / default"</string>
     <string name="text_067" formatted="false">"Invalid ADB key"</string>
     <string name="text_068" formatted="false">"Invalid ADB certificate"</string>
-    <string name="text_069" formatted="false">"Scrcpy • direct USB / wireless • server "</string>
+    <string name="text_069" formatted="false">"n3xPAL • direct USB / wireless • server "</string>
     <string name="text_070" formatted="false">"USB permission on A was denied or the cable was unplugged."</string>
     <string name="text_071" formatted="false">"USB permission was not granted. Tap Connect USB to try again."</string>
     <string name="text_072" formatted="false">"USB cable disconnected. Reconnect it for automatic detection."</string>
