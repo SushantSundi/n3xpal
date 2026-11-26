@@ -1,6 +1,6 @@
 # n3xPAL
 
-## **[⬇ DOWNLOAD APK](https://github.com/SushantSundi/n3xpal/releases/latest/download/n3xPAL-v1.1.0.apk)**
+## **[⬇ DOWNLOAD APK](https://github.com/SushantSundi/n3xpal/releases/latest/download/n3xPAL-v1.2.0.apk)**
 
 **Android-to-Android screen mirroring client** — control and mirror one Android device from another over USB OTG or Wi-Fi.
 
@@ -11,6 +11,7 @@ Package ID: `com.sushantsundi.n3xPAL`
 
 ## Features
 
+- **Browse & pull files from target device** — navigate folders, download photos/videos/any file to tablet
 - **USB OTG & Wireless ADB** — connect via cable or over the same network
 - **Three display scaling modes** — Fit (letterbox), Fill (crop-to-fill), Stretch (ignore aspect ratio)
 - **Double-tap fullscreen toggle** — hide/show system bars instantly
