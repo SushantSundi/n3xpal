@@ -331,8 +331,67 @@ public final class MainActivity extends Activity implements Session.Listener {
         groupLabel(p.content,I18n.t(R.string.text_187));
         tileRow(p.content,new String[]{I18n.t(R.string.text_188),I18n.t(R.string.text_189)},new Runnable[]{()->diagnostic("list_displays"),()->diagnostic("list_encoders")});
         tileRow(p.content,new String[]{I18n.t(R.string.text_190),I18n.t(R.string.text_191)},new Runnable[]{()->diagnostic("list_apps"),()->diagnostic("list_cameras")});
-        addButton(p.content,I18n.t(R.string.text_192),()->diagnostic("list_camera_sizes"));addButton(p.content,I18n.t(R.string.text_193),this::sessionConsole);
+        addButton(p.content,I18n.t(R.string.text_192),()->diagnostic("list_camera_sizes"));
+        groupLabel(p.content,"Files");
+        addButton(p.content,"Browse target device files",()->showFileBrowser(p,"/sdcard",new java.util.ArrayDeque<>()));
+        addButton(p.content,I18n.t(R.string.text_193),this::sessionConsole);
     }
+    private void showFileBrowser(SessionPanel p,String path,java.util.Deque<String> history){
+        if(session==null){toast("Not connected");return;}
+        p.content.removeAllViews();p.heading.setText("Files");p.subtitle.setText(path);
+        TextView loading=note("Loading…");p.content.addView(loading);
+        session.listFiles(path,entries->ui.post(()->{
+            p.content.removeAllViews();p.heading.setText("Files");p.subtitle.setText(path);
+            // navigation header
+            if(!history.isEmpty()){String prev=history.peek();addButton(p.content,"← "+prev.substring(prev.lastIndexOf('/',prev.length()-2)+1),()->{history.pop();showFileBrowser(p,prev,history);});}
+            else addButton(p.content,"← Actions",()->showActionsPanel(p));
+            // quick links at root
+            if("/sdcard".equals(path)||"/sdcard/".equals(path)){
+                groupLabel(p.content,"Quick access");
+                tileRow(p.content,new String[]{"DCIM","Download","Music"},new Runnable[]{
+                    ()->{history.push(path);showFileBrowser(p,"/sdcard/DCIM",history);},
+                    ()->{history.push(path);showFileBrowser(p,"/sdcard/Download",history);},
+                    ()->{history.push(path);showFileBrowser(p,"/sdcard/Music",history);}
+                });
+                groupLabel(p.content,"All files");
+            }
+            if(entries.isEmpty()){p.content.addView(note("Empty or no permission"));return;}
+            for(FileEntry e:entries){
+                String label=(e.isDir?"📁  ":"📄  ")+e.name+(e.isDir?"":"\n"+e.sizeLabel());
+                addButton(p.content,label,()->{
+                    if(e.isDir){history.push(path);showFileBrowser(p,(path.endsWith("/")?path:path+"/")+e.name,history);}
+                    else{String full=(path.endsWith("/")?path:path+"/")+e.name;
+                        new AlertDialog.Builder(MainActivity.this).setTitle(e.name)
+                            .setMessage("Size: "+e.sizeLabel()+"\nDownload to tablet?")
+                            .setPositiveButton("Download",(d,w)->startFilePull(full,e.name))
+                            .setNegativeButton("Cancel",null).show();}
+                });
+            }
+        }),err->ui.post(()->{
+            p.content.removeAllViews();
+            addButton(p.content,"← Actions",()->showActionsPanel(p));
+            p.content.addView(note("Error: "+err));
+        }));
+    }
+    private void startFilePull(String remotePath,String name){
+        if(session==null){toast("Not connected");return;}
+        java.io.File dir=getExternalFilesDir("n3xPAL Downloads");
+        if(dir==null)dir=new java.io.File(getFilesDir(),"n3xPAL Downloads");
+        dir.mkdirs();
+        java.io.File dest=new java.io.File(dir,name);
+        toast("Downloading "+name+"…");
+        log("⬇ Pulling: "+remotePath);
+        session.pullFile(remotePath,dest,
+            bytes->log("⬇ "+name+": "+FileEntry.formatSize(bytes)),
+            ()->{java.io.File f=dest;ui.post(()->{log("✓ Saved: "+f.getAbsolutePath());toast("Downloaded: "+name);mediaReady(f,guessMime(name));});},
+            err->ui.post(()->{log("✗ Pull failed: "+err);toast("Failed: "+err);}));
+    }
+    private static String guessMime(String n){n=n.toLowerCase(java.util.Locale.ROOT);
+        if(n.endsWith(".mp4")||n.endsWith(".mkv")||n.endsWith(".avi")||n.endsWith(".mov")||n.endsWith(".3gp")||n.endsWith(".webm"))return "video/mp4";
+        if(n.endsWith(".mp3")||n.endsWith(".aac")||n.endsWith(".flac")||n.endsWith(".ogg")||n.endsWith(".m4a")||n.endsWith(".wav"))return "audio/*";
+        if(n.endsWith(".jpg")||n.endsWith(".jpeg")||n.endsWith(".png")||n.endsWith(".gif")||n.endsWith(".webp")||n.endsWith(".heic"))return "image/*";
+        if(n.endsWith(".pdf"))return "application/pdf";
+        return "application/octet-stream";}
     private void diagnostic(String flag){if(session!=null)session.diagnostic(flag);toast(I18n.t(R.string.text_194));}
     private void setInteractionMode(int mode){
         if(remote==null||mouseButtonBar==null)return;mode=Math.max(0,Math.min(2,mode));remote.setMode(mode);prefs.edit().putInt("interactionMode",mode).apply();

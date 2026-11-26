@@ -193,6 +193,40 @@ final class Session {
         workers.execute(()->{listener.log("$ "+command);try{AdbStream s=track(adb.openStream("shell:"+command));commandStreams.add(s);try(BufferedReader r=new BufferedReader(new InputStreamReader(s.openInputStream(),StandardCharsets.UTF_8))){String l;while(alive&&(l=r.readLine())!=null)listener.log("[SHELL] "+l);}finally{s.close();streams.remove(s);commandStreams.remove(s);}}catch(Exception e){listener.log("Shell: "+e.getMessage());}});}
     void stopCommands(){workers.execute(()->{for(AdbStream s:commandStreams){try{s.close();}catch(Exception ignored){}}commandStreams.clear();listener.log(I18n.t(R.string.text_037));});}
     void diagnostic(String flag){workers.execute(()->{try{check();String scid=Integer.toHexString(new Random().nextInt()&0x7fffffff);String path="/data/local/tmp/scrcpy-list-"+scid+".jar";try(InputStream in=context.getAssets().open("scrcpy-server")){push(in,path);}shell("CLASSPATH="+quote(path)+" app_process / com.genymobile.scrcpy.Server "+VERSION+" "+flag+"=true; rm -f "+quote(path));}catch(Exception e){listener.log(I18n.t(R.string.text_038)+e.getMessage());}});}
+    void listFiles(String remotePath,java.util.function.Consumer<java.util.List<FileEntry>> onResult,java.util.function.Consumer<String> onError){
+        if(adb==null||!connected){onError.accept(I18n.t(R.string.text_036));return;}
+        workers.execute(()->{try{
+            StringBuilder sb=new StringBuilder();
+            AdbStream s=track(adb.openStream("shell:ls -la "+quote(remotePath)+" 2>&1"));commandStreams.add(s);
+            try(BufferedReader r=new BufferedReader(new InputStreamReader(s.openInputStream(),StandardCharsets.UTF_8))){String l;while(alive&&(l=r.readLine())!=null)sb.append(l).append('\n');}
+            finally{s.close();streams.remove(s);commandStreams.remove(s);}
+            String out=sb.toString();
+            if(out.contains("No such file")||out.contains("Not a directory")){onError.accept(out.trim());return;}
+            onResult.accept(FileEntry.parseList(out));
+        }catch(Exception e){onError.accept(e.getMessage()!=null?e.getMessage():e.getClass().getSimpleName());}});
+    }
+    void pullFile(String remotePath,java.io.File localFile,java.util.function.Consumer<Long> onProgress,Runnable onDone,java.util.function.Consumer<String> onError){
+        if(adb==null||!connected){onError.accept(I18n.t(R.string.text_036));return;}
+        workers.execute(()->{AdbStream sync=null;try{
+            sync=track(adb.openStream("sync:"));
+            OutputStream out=sync.openOutputStream();DataInputStream in=new DataInputStream(sync.openInputStream());
+            byte[] pb=remotePath.getBytes(StandardCharsets.UTF_8);
+            out.write(ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).put("RECV".getBytes(StandardCharsets.US_ASCII)).putInt(pb.length).array());
+            out.write(pb);out.flush();
+            long total=0;
+            try(java.io.FileOutputStream fos=new java.io.FileOutputStream(localFile)){
+                byte[] id=new byte[4];
+                while(alive){in.readFully(id);int len=Integer.reverseBytes(in.readInt());String tag=new String(id,StandardCharsets.US_ASCII);
+                    if("DATA".equals(tag)){if(len<0||len>65536)throw new IOException("DATA length invalid: "+len);byte[]chunk=new byte[len];in.readFully(chunk);fos.write(chunk);total+=len;final long t=total;if(onProgress!=null)onProgress.accept(t);}
+                    else if("DONE".equals(tag)){in.readInt();break;}
+                    else if("FAIL".equals(tag)){if(len>0&&len<=65536){byte[]msg=new byte[len];in.readFully(msg);throw new IOException(new String(msg,StandardCharsets.UTF_8));}throw new IOException("Transfer failed");}
+                    else throw new IOException("Unexpected sync tag: "+tag);
+                }
+            }
+            onDone.run();
+        }catch(Exception e){localFile.delete();onError.accept(e.getMessage()!=null?e.getMessage():e.getClass().getSimpleName());}
+        finally{if(sync!=null){try{sync.close();}catch(Exception ignored){}streams.remove(sync);}}});
+    }
     void stop(){finish(I18n.t(R.string.text_039),true);}
     private void fail(String reason){finish(reason,false);}
     private void finish(String reason,boolean manual){
