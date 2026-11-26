@@ -27,6 +27,8 @@ final class RemoteView extends FrameLayout {
     private int remoteW=1,remoteH=1;
     private final SparseArray<Point> fingers=new SparseArray<>();
     private final Runnable hold=()->{if(mouse&&!buttonMode&&!multi&&travel<dp(12)&&ready()){dragging=true;mouseEvent(0);}};
+    private final GestureDetector gestureDetector;
+    private Runnable onDoubleTap;
     RemoteView(Context c,Consumer<String> log){
         super(c);this.log=log;setBackgroundColor(Color.BLACK);
         texture=new TextureView(c);texture.setOpaque(false);addView(texture,new LayoutParams(-1,-1));
@@ -34,6 +36,9 @@ final class RemoteView extends FrameLayout {
             Path p=new Path();p.moveTo(x,y);p.lineTo(x+dp(5),y+dp(20));p.lineTo(x+dp(9),y+dp(13));p.lineTo(x+dp(17),y+dp(12));p.close();
             paint.setStyle(Paint.Style.FILL);paint.setColor(Color.WHITE);canvas.drawPath(p,paint);paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(dp(1.5f));paint.setColor(Color.BLACK);canvas.drawPath(p,paint);paint.setStyle(Paint.Style.FILL);
         }};addView(cursor,new LayoutParams(-1,-1));
+        gestureDetector=new GestureDetector(c,new GestureDetector.SimpleOnGestureListener(){
+            @Override public boolean onDoubleTap(MotionEvent e){if(onDoubleTap!=null){onDoubleTap.run();return true;}return false;}
+        });
         setFocusableInTouchMode(true);
     }
     private float dp(float n){return n*getResources().getDisplayMetrics().density;}
@@ -53,6 +58,9 @@ final class RemoteView extends FrameLayout {
     float zoomFactor(){return viewport.zoom();}
     void resetZoom(){viewport.reset();renderViewport();}
     void zoomBy(float factor){if(!mouse)return;viewport.transform(factor,getWidth()/2f,getHeight()/2f,getWidth()/2f,getHeight()/2f);renderViewport();}
+    void setDisplayMode(LocalViewport.Mode m){viewport.setMode(m);viewport.reset();renderViewport();}
+    LocalViewport.Mode getDisplayMode(){return viewport.mode();}
+    void setOnDoubleTap(Runnable r){onDoubleTap=r;}
     private boolean ready(){return session!=null&&session.control!=null&&session.connected;}
     int mode(){return !mouse?0:buttonMode?2:1;}
     String modeName(){return !mouse?I18n.t(R.string.text_001):buttonMode?I18n.t(R.string.text_002):I18n.t(R.string.text_003);}
@@ -73,6 +81,7 @@ final class RemoteView extends FrameLayout {
     }
     public boolean onInterceptTouchEvent(MotionEvent event){return true;}
     public boolean onTouchEvent(MotionEvent e){
+        gestureDetector.onTouchEvent(e);
         if(!ready())return true;
         int action=e.getActionMasked(),index=e.getActionIndex();
         if(!mouse){

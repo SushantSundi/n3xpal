@@ -304,6 +304,11 @@
     <string name="text_302" formatted="false">"Invalid video codec"</string>
     <string name="text_303" formatted="false">"Invalid audio codec"</string>
     <string name="text_304" formatted="false">"MP4 recording requires h264 video and, if audio is enabled, aac audio."</string>
+    <string name="text_305" formatted="false">"Display"</string>
+    <string name="text_306" formatted="false">"Fit"</string>
+    <string name="text_307" formatted="false">"Fill"</string>
+    <string name="text_308" formatted="false">"Stretch"</string>
+    <string name="text_309" formatted="false">"Fit: preserves aspect ratio, adds black bars.\nFill: crops edges to fill screen.\nStretch: fills screen, ignores aspect ratio.\nDouble-tap to toggle system bars."</string>
     <string name="app_name" formatted="false">"Scrcpy"</string>
     <string name="language" formatted="false">"Language"</string>
     <string name="language_hint" formatted="false">"Choose the app language. Changes apply immediately and are saved."</string>

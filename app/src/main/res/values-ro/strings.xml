@@ -304,6 +304,11 @@
     <string name="text_302" formatted="false">"Codec video invalid"</string>
     <string name="text_303" formatted="false">"Codec audio invalid"</string>
     <string name="text_304" formatted="false">"Înregistrarea MP4 necesită video h264 și, dacă sunetul este activ, audio aac."</string>
+    <string name="text_305" formatted="false">"Afișare"</string>
+    <string name="text_306" formatted="false">"Încadrare"</string>
+    <string name="text_307" formatted="false">"Umplere"</string>
+    <string name="text_308" formatted="false">"Întindere"</string>
+    <string name="text_309" formatted="false">"Încadrare: păstrează proporțiile, cu bare negre.\nUmplere: decupează marginile pentru a umple ecranul.\nÎntindere: umple ecranul, ignoră proporțiile.\nDublu-atingere pentru a comuta barele de sistem."</string>
     <string name="app_name" formatted="false">"Scrcpy"</string>
     <string name="language" formatted="false">"Limbă"</string>
     <string name="language_hint" formatted="false">"Alege limba aplicației. Schimbarea se aplică imediat și este salvată."</string>

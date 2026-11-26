@@ -218,7 +218,10 @@ public final class MainActivity extends Activity implements Session.Listener {
         pairing=true;status.setText(I18n.t(R.string.text_140));io.execute(()->{try{AdbIdentity a=new AdbIdentity(this);a.pair(h,p,code);a.disconnect();log(I18n.t(R.string.text_141)+h+I18n.t(R.string.text_142));ui.post(()->{status.setText(I18n.t(R.string.text_143));pairCode.setText("");});}catch(Exception e){log(I18n.t(R.string.text_144)+e);ui.post(()->status.setText(I18n.t(R.string.text_145)));}finally{pairing=false;}});
     }
     private void openPlayer(){if(destroyed||!connectionGate.canStart()||player!=null)return;getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);home.setVisibility(View.GONE);
-        player=new FrameLayout(this);player.setMotionEventSplittingEnabled(true);player.setBackgroundColor(Color.BLACK);root.addView(player,new FrameLayout.LayoutParams(-1,-1));remote=new RemoteView(this,this::log);remote.speed=Float.parseFloat(lastOptions.get("mouseSpeed"));player.addView(remote,new FrameLayout.LayoutParams(-1,-1));remote.requestFocus();createMouseButtons();
+        player=new FrameLayout(this);player.setMotionEventSplittingEnabled(true);player.setBackgroundColor(Color.BLACK);root.addView(player,new FrameLayout.LayoutParams(-1,-1));remote=new RemoteView(this,this::log);remote.speed=Float.parseFloat(lastOptions.get("mouseSpeed"));player.addView(remote,new FrameLayout.LayoutParams(-1,-1));remote.requestFocus();
+        int savedDm=prefs.getInt("displayMode",0);remote.setDisplayMode(LocalViewport.Mode.values()[Math.max(0,Math.min(2,savedDm))]);
+        remote.setOnDoubleTap(this::toggleFullscreen);sessionFullscreen=true;
+        createMouseButtons();
         Button menu=button("•••",this::sessionMenu);menu.setContentDescription(I18n.t(R.string.text_146));menu.setAlpha(.42f);menu.setMinWidth(0);menu.setMinimumWidth(0);menu.setPadding(0,0,0,0);FrameLayout.LayoutParams mp=new FrameLayout.LayoutParams(dp(40),dp(36),Gravity.TOP|Gravity.END);mp.setMargins(dp(8),dp(10),dp(10),0);player.addView(menu,mp);
         // Long press and drag moves the small button; a tap opens the menu.
         menu.setOnTouchListener(new View.OnTouchListener(){float x,y,tx,ty;boolean moved;public boolean onTouch(View v,MotionEvent e){if(e.getActionMasked()==0){x=e.getRawX();y=e.getRawY();tx=v.getTranslationX();ty=v.getTranslationY();moved=false;return true;}if(e.getActionMasked()==2){float dx=e.getRawX()-x,dy=e.getRawY()-y;if(Math.hypot(dx,dy)>dp(8))moved=true;if(moved){v.setTranslationX(Math.max(-player.getWidth()+dp(50),Math.min(0,tx+dx)));v.setTranslationY(Math.max(0,Math.min(player.getHeight()-dp(60),ty+dy)));}return true;}if(e.getActionMasked()==1){if(!moved)v.performClick();return true;}return true;}});
@@ -239,10 +242,17 @@ public final class MainActivity extends Activity implements Session.Listener {
         });
         if(Build.VERSION.SDK_INT>=30){getWindow().getInsetsController().hide(WindowInsets.Type.systemBars());getWindow().getInsetsController().setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);}else getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
+    private void toggleFullscreen(){
+        if(player==null)return;
+        sessionFullscreen=!sessionFullscreen;
+        if(Build.VERSION.SDK_INT>=30){WindowInsetsController ic=getWindow().getInsetsController();if(ic==null)return;if(sessionFullscreen){ic.hide(WindowInsets.Type.systemBars());ic.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);}else ic.show(WindowInsets.Type.systemBars());}
+        else getWindow().getDecorView().setSystemUiVisibility(sessionFullscreen?View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY:0);
+    }
     private void connectSession(){if(destroyed||!connectionGate.canStart()||player==null||remote==null||manualStop||renderSurface==null||!renderSurface.isValid()||session!=null)return;try{session=new Session(this,lastHost,lastPort,lastOptions,renderSurface,this,usbMode?lastUsb:null);remote.session=session;session.start();}catch(Exception e){log(I18n.t(R.string.text_147)+e);leavePlayer();}}
     private LinearLayout mouseButtonBar;
     private SessionPanel activePanel;
     private Dialog activeConsole;
+    private boolean sessionFullscreen=true;
     private final class SessionPanel {
         final Dialog dialog=new Dialog(MainActivity.this);
         final LinearLayout content=column();
@@ -274,6 +284,12 @@ public final class MainActivity extends Activity implements Session.Listener {
         Runnable paint=()->{for(int i=0;i<buttons.length;i++){boolean selected=remote!=null&&remote.mode()==i;GradientDrawable b=shape(selected?0xff293b4b:0xff1b2029,16);b.setStroke(dp(1),selected?0xff9bbbd5:0xff303744);buttons[i].setBackground(b);}p.heading(I18n.t(R.string.text_152));};
         for(int i=0;i<3;i++){final int mode=i;Button b=button(names[i],()->{setInteractionMode(mode);showMainPanel(p);});b.setTextSize(12);b.setPadding(dp(5),dp(6),dp(5),dp(6));b.setMaxLines(3);buttons[i]=b;LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(90),1);lp.setMargins(dp(3),dp(6),dp(3),dp(10));modes.addView(b,lp);}p.content.addView(modes);paint.run();
         p.content.addView(note(I18n.t(R.string.text_157)));
+        groupLabel(p.content,I18n.t(R.string.text_305));
+        p.content.addView(note(I18n.t(R.string.text_309)));
+        LinearLayout displayModes=row();Button[] dmButtons=new Button[3];String[] dmNames={I18n.t(R.string.text_306),I18n.t(R.string.text_307),I18n.t(R.string.text_308)};
+        Runnable paintDm=()->{for(int i=0;i<dmButtons.length;i++){boolean sel=remote!=null&&remote.getDisplayMode().ordinal()==i;GradientDrawable bg=shape(sel?0xff293b4b:0xff1b2029,16);bg.setStroke(dp(1),sel?0xff9bbbd5:0xff303744);dmButtons[i].setBackground(bg);}};
+        for(int i=0;i<3;i++){final int dm=i;Button b=button(dmNames[i],()->{if(remote!=null)remote.setDisplayMode(LocalViewport.Mode.values()[dm]);prefs.edit().putInt("displayMode",dm).apply();paintDm.run();});b.setTextSize(12);b.setPadding(dp(5),dp(6),dp(5),dp(6));b.setMaxLines(2);dmButtons[i]=b;LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(62),1);lp.setMargins(dp(3),dp(4),dp(3),dp(4));displayModes.addView(b,lp);}
+        p.content.addView(displayModes);paintDm.run();
         groupLabel(p.content,I18n.t(R.string.text_158));
         TextView zoom=note("");Runnable updateZoom=()->zoom.setText(remote==null?"":String.format(java.util.Locale.ROOT,I18n.t(R.string.text_159),remote.zoomFactor()));
         p.content.addView(zoom);updateZoom.run();

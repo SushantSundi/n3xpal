@@ -2,13 +2,17 @@ package ro.sw3g.scrcpy;
 
 /** Local presentation only: this class never changes the remote device's display. */
 final class LocalViewport {
+    enum Mode { FIT, FILL, STRETCH }
     static final float MAX_ZOOM=6f;
     private float viewW=1,viewH=1,sourceW=1,sourceH=1,zoom=1,left,top,width=1,height=1;
+    private Mode mode=Mode.FIT;
     float zoom(){return zoom;}
     float left(){return left;}
     float top(){return top;}
     float width(){return width;}
     float height(){return height;}
+    Mode mode(){return mode;}
+    void setMode(Mode m){mode=m;}
     void size(float vw,float vh,float sw,float sh){
         float centerX=(viewW/2-left)/width,centerY=(viewH/2-top)/height;
         viewW=Math.max(1,vw);viewH=Math.max(1,vh);sourceW=Math.max(1,sw);sourceH=Math.max(1,sh);
@@ -22,7 +26,11 @@ final class LocalViewport {
     }
     float sourceX(float x){return Math.max(0,Math.min(1,(x-left)/width));}
     float sourceY(float y){return Math.max(0,Math.min(1,(y-top)/height));}
-    private void measure(){float scale=Math.min(viewW/sourceW,viewH/sourceH)*zoom;width=sourceW*scale;height=sourceH*scale;}
+    private void measure(){
+        if(mode==Mode.STRETCH){width=viewW*zoom;height=viewH*zoom;}
+        else if(mode==Mode.FILL){float scale=Math.max(viewW/sourceW,viewH/sourceH)*zoom;width=sourceW*scale;height=sourceH*scale;}
+        else{float scale=Math.min(viewW/sourceW,viewH/sourceH)*zoom;width=sourceW*scale;height=sourceH*scale;}
+    }
     private void clamp(){
         left=width<=viewW?(viewW-width)/2:Math.max(viewW-width,Math.min(0,left));
         top=height<=viewH?(viewH-height)/2:Math.max(viewH-height,Math.min(0,top));
