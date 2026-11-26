@@ -1,6 +1,6 @@
 # n3xPAL
 
-## **[⬇ DOWNLOAD APK](https://github.com/SushantSundi/n3xpal/releases/latest/download/n3xPAL-v1.0.0.apk)**
+## **[⬇ DOWNLOAD APK](https://github.com/SushantSundi/n3xpal/releases/latest/download/n3xPAL-v1.1.0.apk)**
 
 **Android-to-Android screen mirroring client** — control and mirror one Android device from another over USB OTG or Wi-Fi.
 
