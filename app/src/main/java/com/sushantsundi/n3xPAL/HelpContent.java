@@ -1,4 +1,4 @@
-package ro.sw3g.scrcpy;
+package com.sushantsundi.n3xPAL;
 
 import java.text.Normalizer;
 import java.util.*;

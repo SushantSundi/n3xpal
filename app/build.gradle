@@ -1,13 +1,13 @@
 plugins { id 'com.android.application' }
 android {
-    namespace 'ro.sw3g.scrcpy'
+    namespace 'com.sushantsundi.n3xPAL'
     compileSdk 35
     defaultConfig {
-        applicationId 'ro.sw3g.scrcpy'
+        applicationId 'com.sushantsundi.n3xPAL'
         minSdk 26
         targetSdk 35
-        versionCode 9
-        versionName '1.5.1-foreground-usb'
+        versionCode 10
+        versionName '1.0.0'
     }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     packaging { resources.excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE*', 'META-INF/NOTICE*'] }

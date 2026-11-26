@@ -1,4 +1,4 @@
-package ro.sw3g.scrcpy;
+package com.sushantsundi.n3xPAL;
 
 /** Concrete editable presets; native device support still determines usable modes. */
 final class SettingsChoices {

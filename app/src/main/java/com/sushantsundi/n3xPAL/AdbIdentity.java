@@ -1,4 +1,4 @@
-package ro.sw3g.scrcpy;
+package com.sushantsundi.n3xPAL;
 
 import android.content.Context;
 import android.util.AtomicFile;
@@ -24,7 +24,7 @@ final class AdbIdentity extends AbsAdbConnectionManager {
     }
     protected PrivateKey getPrivateKey() { return key; }
     protected Certificate getCertificate() { return cert; }
-    protected String getDeviceName() { return "ScrcpyOLED"; }
+    protected String getDeviceName() { return "n3xPAL Tablet"; }
     private static synchronized Object[] load(Context ctx) throws Exception {
         AtomicFile file = new AtomicFile(new File(ctx.getFilesDir(), "adb-identity.bin"));
         if (file.getBaseFile().exists()) {

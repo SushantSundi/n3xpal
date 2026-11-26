@@ -1,4 +1,4 @@
-package ro.sw3g.scrcpy;
+package com.sushantsundi.n3xPAL;
 
 /** Local presentation only: this class never changes the remote device's display. */
 final class LocalViewport {

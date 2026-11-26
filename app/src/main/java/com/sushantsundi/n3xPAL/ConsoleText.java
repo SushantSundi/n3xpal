@@ -1,4 +1,4 @@
-package ro.sw3g.scrcpy;
+package com.sushantsundi.n3xPAL;
 
 import android.graphics.Typeface;
 import android.text.SpannableStringBuilder;

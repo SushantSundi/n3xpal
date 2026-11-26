@@ -1,4 +1,4 @@
-package ro.sw3g.scrcpy;
+package com.sushantsundi.n3xPAL;
 
 /** Independent physical-style button state, shared by the pad and bottom buttons. */
 final class MouseButtons {

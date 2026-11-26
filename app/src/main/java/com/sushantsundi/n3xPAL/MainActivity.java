@@ -1,4 +1,4 @@
-package ro.sw3g.scrcpy;
+package com.sushantsundi.n3xPAL;
 
 import android.app.*;
 import android.content.*;
@@ -49,7 +49,7 @@ public final class MainActivity extends Activity implements Session.Listener {
         root=new FrameLayout(this);root.setBackgroundColor(Color.BLACK);
         root.setOnApplyWindowInsetsListener((v,insets)->{if(Build.VERSION.SDK_INT>=30){android.graphics.Insets sys=insets.getInsets(WindowInsets.Type.systemBars()|WindowInsets.Type.displayCutout()|WindowInsets.Type.ime());root.setPadding(sys.left,sys.top,sys.right,sys.bottom);}else root.setPadding(insets.getSystemWindowInsetLeft(),insets.getSystemWindowInsetTop(),insets.getSystemWindowInsetRight(),insets.getSystemWindowInsetBottom());return insets;});
         setContentView(root);buildHome();io.execute(()->{try{if(logFile.exists()){byte[] bytes=read(logFile);String text=new String(bytes,StandardCharsets.UTF_8);synchronized(logLock){visibleLog.insert(0,text);trimLog();dirty=true;}}}catch(Exception ignored){}});log(I18n.t(R.string.text_069)+Session.VERSION);setupUsb();}
-    private static final String USB_PERMISSION="ro.sw3g.scrcpy.USB_PERMISSION";
+    private static final String USB_PERMISSION="com.sushantsundi.n3xPAL.USB_PERMISSION";
     private UsbManager usbManager;
     private UsbDevice lastUsb;
     private boolean usbMode,usbReceiverRegistered,usbScanPending;
@@ -137,7 +137,7 @@ public final class MainActivity extends Activity implements Session.Listener {
     private EditText input(LinearLayout parent,String caption,String value,String hint,boolean numeric){parent.addView(note(caption));EditText e=new EditText(this);e.setSingleLine(true);e.setTextColor(Color.WHITE);e.setTextSize(16);e.setHintTextColor(Color.GRAY);e.setHint(hint);e.setText(value);e.setPadding(dp(10),dp(8),dp(10),dp(8));e.setBackground(shape(Color.rgb(22,24,30),10));if(numeric)e.setInputType(InputType.TYPE_CLASS_NUMBER);parent.addView(e,new LinearLayout.LayoutParams(-1,dp(46)));return e;}
     private ScrollView scroll(LinearLayout content){ScrollView s=new ScrollView(this);s.setFillViewport(true);s.addView(content,new ScrollView.LayoutParams(-1,-2));return s;}
     private void buildHome(){home=column();home.setPadding(dp(14),dp(8),dp(14),0);root.addView(home,new FrameLayout.LayoutParams(-1,-1));
-        TextView heading=title("Scrcpy");heading.setTypeface(null,1);home.addView(heading);home.addView(note(I18n.t(R.string.text_081)));
+        TextView heading=title("n3xPAL");heading.setTypeface(null,1);home.addView(heading);home.addView(note(I18n.t(R.string.text_081)));
         status=note(I18n.t(R.string.text_082));home.addView(status);
         LinearLayout tabs=row();String[] names={I18n.t(R.string.text_083),I18n.t(R.string.text_084),"Help",I18n.t(R.string.text_085)};for(int i=0;i<names.length;i++){final int n=i;Button b=button(names[i],()->select(n));b.setTextSize(12);b.setPadding(0,0,0,0);LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,dp(44),1);p.setMargins(dp(2),0,dp(2),dp(10));tabs.addView(b,p);}home.addView(tabs);
         body=column();home.addView(body,new LinearLayout.LayoutParams(-1,0,1));select(0);

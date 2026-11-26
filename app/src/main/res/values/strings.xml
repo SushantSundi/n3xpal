@@ -309,7 +309,7 @@
     <string name="text_307" formatted="false">"Fill"</string>
     <string name="text_308" formatted="false">"Stretch"</string>
     <string name="text_309" formatted="false">"Fit: preserves aspect ratio, adds black bars.\nFill: crops edges to fill screen.\nStretch: fills screen, ignores aspect ratio.\nDouble-tap to toggle system bars."</string>
-    <string name="app_name" formatted="false">"Scrcpy"</string>
+    <string name="app_name" formatted="false">"n3xPAL"</string>
     <string name="language" formatted="false">"Language"</string>
     <string name="language_hint" formatted="false">"Choose the app language. Changes apply immediately and are saved."</string>
     <string name="option_display" formatted="false">"Screen"</string>

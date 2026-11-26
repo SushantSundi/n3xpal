@@ -1,4 +1,4 @@
-package ro.sw3g.scrcpy;
+package com.sushantsundi.n3xPAL;
 
 /** Controls new connection attempts only; an active Session is never stopped here. */
 final class ConnectionGate {
